@@ -78,13 +78,13 @@ function renderRegister(){
             </div>
             <div class="form-group">
                 <label for="password">Password:</label>
-                <input type="password" name="passsword" id="password">
+                <input type="password" name="password" id="password">
             </div>
             <div class="form-group">
                 <label for="password2">Confirm Password:</label>
-                <input type="password" name="passsword2" id="password2">
+                <input type="password" name="password2" id="password2">
             </div>
-            <button class="js-register">Register</button>
+            <button type="submit" class="js-register">Register</button>
         </form>
         <div class="history">
             If you already have an account click the login button
@@ -102,9 +102,29 @@ function renderRegister(){
         const name = document.getElementById('name').value;
         const email = document.getElementById('email').value;
         const password = document.getElementById('password').value;
-        // later add a function to check if password1 == password2
-        addNewEmployee({name, email, password});
+        const password2 = document.getElementById('password2').value;
+        
+        if(register(name, email, password, password2)){
+            document.querySelector('.history').innerText = "Registration successful!";
+            addNewEmployee({name, email, password});
+        }
     });
+}
+
+function register(name, email, password, password2){
+    if(!name || !email || !password || !password2){
+        document.querySelector('.history').innerText = "All the fields must be filled";
+        return false;
+    }
+    if(password !== password2){
+        document.querySelector('.history').innerText = "Password didn't match";
+        return false;
+    }
+    if(employee.find(employee => employee.email === email)){
+        document.querySelector('.history').innerText = "Email already registered";
+        return false;
+    }
+    return true;
 }
 
 function renderLoggedIn(employee){
@@ -115,6 +135,7 @@ function renderLoggedIn(employee){
                 Turn on the cash
             </div>
             <div class="form-group">Start your shift and punch in <a href="punch.html">Punch In</a></div>
+            <div class="form-group">Change your pin <a href="#">Change Pin</a></div>
         </form>
         <button class="js-logout">Logout</button>
     `;
