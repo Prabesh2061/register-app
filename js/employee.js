@@ -1,14 +1,27 @@
-import { employee } from "../data/employee-data.js";
+import { employee, addNewEmployee } from "../data/employee-data.js";
 
-renderLogin();
+var loginInfo = JSON.parse(localStorage.getItem('login'));
+
+if(!loginInfo){
+    isLoggedIn = false;
+}else{
+    var isLoggedIn = loginInfo.isLoggedIn;
+}
+
+if (isLoggedIn){
+    const loggedInEmployee = loginInfo.employeeInfo;
+    renderLoggedIn(loggedInEmployee);
+}else{
+    renderLogin();
+}
 
 function renderLogin(){
     const loginHTML = `
         <h2>Login</h2>
         <form>
             <div class="form-group">
-                <label for="user">Username:</label>
-                <input type="text" name="user" id="user">
+                <label for="email">Email:</label>
+                <input type="email" name="email" id="email">
             </div>
             <div class="form-group">
                 <label for="password">Password:</label>
@@ -29,16 +42,26 @@ function renderLogin(){
 
     document.querySelector('.js-login').addEventListener('click', (e) => {
         e.preventDefault();
-        const username = document.getElementById('user').value;
+        const email = document.getElementById('email').value;
         const password = document.getElementById('password').value;
-        employee.forEach((e) => {
-            if (username === e.username && password === e.password) {
-                console.log("You have logged in");
-            }else{
-                console.log("Username or password didn't match");
-            }
-        });
+
+        if(login(email, password)){
+            console.log('You have logged in');
+        }else{
+            console.log("Email or password didn't match");
+        }
     });
+}
+
+function login(email, password){
+    const employeeInfo = employee.find(employee => employee.email === email);
+    if (employeeInfo && employeeInfo.password === password) {
+        isLoggedIn = true;
+        renderLoggedIn(employeeInfo);
+        localStorage.setItem('login', JSON.stringify({employeeInfo, isLoggedIn}));
+        return true;
+    }
+    return false;
 }
 
 function renderRegister(){
@@ -50,8 +73,8 @@ function renderRegister(){
                 <input type="text" name="name" id="name">
             </div>
             <div class="form-group">
-                <label for="user">Email:</label>
-                <input type="email" name="user" id="user">
+                <label for="email">Email:</label>
+                <input type="email" name="email" id="email">
             </div>
             <div class="form-group">
                 <label for="password">Password:</label>
@@ -76,6 +99,31 @@ function renderRegister(){
 
     document.querySelector('.js-register').addEventListener('click', (e) => {
         e.preventDefault();
-        console.log('New Employee Registered');
+        const name = document.getElementById('name').value;
+        const email = document.getElementById('email').value;
+        const password = document.getElementById('password').value;
+        // later add a function to check if password1 == password2
+        addNewEmployee({name, email, password});
+    });
+}
+
+function renderLoggedIn(employee){
+    const loggedInHTML = `
+        <h2>You have logged in as ${employee.name}</h2>
+        <form>
+            <div class="form-group">
+                Turn on the cash
+            </div>
+            <div class="form-group">Start your shift and punch in <a href="punch.html">Punch In</a></div>
+        </form>
+        <button class="js-logout">Logout</button>
+    `;
+
+    document.querySelector('.js-current').innerHTML = loggedInHTML;
+
+    document.querySelector('.js-logout').addEventListener('click', () => {
+        isLoggedIn = false;
+        localStorage.setItem('login', JSON.stringify({isLoggedIn}));
+        renderLogin();
     });
 }
