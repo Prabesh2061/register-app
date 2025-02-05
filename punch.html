@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Punch App</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <header class="headbar">
+        <nav>
+            <a href="#" class="logo">Punch</a>
+            <div class="nav-links">
+                <a href="index.html">Employee</a>
+                <a href="#">Punch Clock</a>
+                <a href="customer.html">Customer</a>
+                <a href="#">Change Pin</a>
+                <span class="cash-status">Cashier Status</span>
+            </div>
+        </nav>
+    </header>
+    <main>
+        <div class="container">
+            <div class="current">
+                <h2>Punch</h2>
+                <form>
+                    <div class="form-group">
+                        <label for="user">User:</label>
+                        <select name="user" id="user">
+                            <option value="prabesh">Prabesh</option>
+                            <option value="propain">Propain</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="pin">Pin:</label>
+                        <input type="number" name="pin" id="pin">
+                    </div>
+                    <button type="submit">Punch</button>
+                </form>
+                <div class="history">
+                    <p>Last Punch History in Here</p>
+                </div>
+            </div>
+        </div>
+    </main>
+</body>
+</html>
