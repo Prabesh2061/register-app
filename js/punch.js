@@ -19,7 +19,8 @@ function renderPunchHtml(){
                 <button class="punchIn">Punch In</button>
                 <button class="punchOut">Punch Out</button>
             </form>
-            <div class="history">
+            <div class="history js-pin-info">Please enter your pin</div>
+            <div class="history js-punch-info">
                 Your last punch status will display here
             </div>
         </div>
@@ -32,7 +33,11 @@ function renderPunchHtml(){
     // event listener for the punch in button
     document.querySelector('.punchIn').addEventListener('click', (e) => {
         e.preventDefault();
+        if(!verifyPin()){
+            return;
+        };
         if(getSelectedUser().punchStatus.isPunchedIn === true){
+            document.querySelector('.js-pin-info').innerHTML = "Already punched in";
             console.log('already punched in');
             return
         };
@@ -42,7 +47,8 @@ function renderPunchHtml(){
         getSelectedUser().punchStatus.isPunchedIn = true;
         getSelectedUser().punchStatus.lastPunch = punchMsg;
         saveToStorage();
-        document.querySelector('.history').innerHTML = punchMsg;
+        document.querySelector('.js-punch-info').innerHTML = punchMsg;
+        renderPinMessage();
     });
 
     // event listener for punch out button
@@ -50,6 +56,7 @@ function renderPunchHtml(){
         e.preventDefault();
         if(getSelectedUser().punchStatus.isPunchedIn === false){
             console.log("You haven't punched in yet");
+            document.querySelector('.js-pin-info').innerHTML = "You haven't punched in yet";
             return
         };
 
@@ -58,11 +65,13 @@ function renderPunchHtml(){
         getSelectedUser().punchStatus.isPunchedIn = false;
         getSelectedUser().punchStatus.lastPunch = punchMsg;
         saveToStorage();
-        document.querySelector('.history').innerHTML = punchMsg;
+        document.querySelector('.js-punch-info').innerHTML = punchMsg;
+        renderPinMessage();
     });
 
     document.querySelector('.js-user-option').addEventListener('change', () => {
         renderPunchMessage();
+        renderPinMessage();
     });
 }
 // function to get the employee info that is selected in the dropdown menu
@@ -73,10 +82,14 @@ function getSelectedUser(){
 }
 
 function renderPunchMessage(){
-    document.querySelector('.history').innerHTML =
+    document.querySelector('.js-punch-info').innerHTML =
     getSelectedUser().punchStatus.lastPunch === ''
         ? 'Your last punch status will display here'
         : getSelectedUser().punchStatus.lastPunch;
+}
+
+function renderPinMessage(){
+    document.querySelector('.js-pin-info').innerHTML = 'Please enter your pin';
 }
 
 function getUsers(){
@@ -85,6 +98,19 @@ function getUsers(){
         userHtml += `<option value="${e.name}">${e.name}</option>`;
     });
     return userHtml;
+}
+
+function verifyPin(){
+    const pin = document.getElementById('pin').value;
+    let div = document.querySelector('.js-pin-info');
+    /*if(pin === ''){
+        div.innerHTML = 'The pin is empty';
+        return false;
+    }else if(getSelectedUser().pin !== ''){
+        div.innerHTML = 'The pin is incorrect';
+        return false;
+    }*/
+    return true;
 }
 
 renderPunchHtml();
