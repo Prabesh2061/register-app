@@ -106,7 +106,9 @@ function renderRegister(){
         
         if(register(name, email, password, password2)){
             document.querySelector('.history').innerText = "Registration successful!";
-            addNewEmployee({name, email, password});
+            const pin = '0000';
+            addNewEmployee({name, email, password, pin});
+            renderLogin();
         }
     });
 }
