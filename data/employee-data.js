@@ -3,7 +3,11 @@ export const employee = JSON.parse(localStorage.getItem('employee')) || [
         name: 'Prabesh Aryal',
         email: 'aryalpravesh111@gmail.com',
         password: 'prabesh123',
-        pin: '0000'
+        pin: '0000',
+        punchStatus: {
+            isPunchedIn: false,
+            lastPunch: ''
+        }
     }
 ]
 
