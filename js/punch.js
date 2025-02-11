@@ -75,7 +75,7 @@ function renderPunchHtml(){
     });
 }
 // function to get the employee info that is selected in the dropdown menu
-function getSelectedUser(){
+export function getSelectedUser(){
     const username = document.getElementById('user').value;
     const selectedEmployee = employee.find(e => e.name === username);
     return selectedEmployee;
@@ -92,7 +92,7 @@ function renderPinMessage(){
     document.querySelector('.js-pin-info').innerHTML = 'Please enter your pin';
 }
 
-function getUsers(){
+export function getUsers(){
     let userHtml = ``;
     employee.forEach(e => {
         userHtml += `<option value="${e.name}">${e.name}</option>`;
