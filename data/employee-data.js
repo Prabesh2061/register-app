@@ -30,3 +30,7 @@ export function addNewEmployee(employeeDetails) {
 export function saveToStorage(){
     localStorage.setItem('employee', JSON.stringify(employee));
 }
+
+export function getSelectedUser(username){
+    return employee.find(e => e.name === username);
+}

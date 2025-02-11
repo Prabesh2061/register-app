@@ -1,5 +1,4 @@
-import {getSelectedUser, getUsers} from './punch.js';
-import { employee, saveToStorage } from '../data/employee-data.js';
+import { employee, saveToStorage, getSelectedUser } from '../data/employee-data.js';
 
 function renderChangePin(){
     const html = `
@@ -9,7 +8,7 @@ function renderChangePin(){
                 <div class="form-group">
                     <label for="user">User:</label>
                     <select name="user" id="user" class="js-user-option">
-                        ${getUsers()}
+                        ${employee.map(e => `<option value="${e.name}">${e.name}</option>`)}
                     </select>
                 </div>
                 <div class="form-group">
@@ -31,6 +30,11 @@ function renderChangePin(){
     `;
     document.querySelector('.container').innerHTML = html;
 
+    let selectedUser = getSelectedUser(document.getElementById('user').value);
+    document.querySelector('.js-user-option').addEventListener('change', () => {
+        selectedUser = getSelectedUser(document.getElementById('user').value);
+    });
+    
     document.querySelector('.js-change-pin').addEventListener('click', (e) => {
         e.preventDefault();
         const currentPin = document.getElementById('pin').value;
@@ -43,14 +47,14 @@ function renderChangePin(){
             document.querySelector('.js-pin-info').innerHTML = 'Please fill out every field to continue';
             return
         }
-        if (currentPin != getSelectedUser().pin){
+        if (currentPin != selectedUser.pin){
             document.querySelector('.js-pin-info').innerHTML = "The current pin is incorrect";
             return
         } else if(newPin !== confirmPin){
             document.querySelector('.js-pin-info').innerHTML = 'Please confirm that you typed new pin correctly';
             return
         }
-        getSelectedUser().pin = newPin;
+        selectedUser.pin = newPin;
         saveToStorage();
         document.querySelector('.js-pin-info').innerHTML = 'The pin was changed';
     });

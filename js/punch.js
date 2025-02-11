@@ -1,4 +1,4 @@
-import { employee, saveToStorage } from "../data/employee-data.js";
+import { employee, getSelectedUser, saveToStorage } from "../data/employee-data.js";
 import 'https://cdn.jsdelivr.net/npm/dayjs@1/dayjs.min.js';
 
 function renderPunchHtml(){
@@ -9,7 +9,7 @@ function renderPunchHtml(){
                 <div class="form-group">
                     <label for="user">User:</label>
                     <select name="user" id="user" class="js-user-option">
-                        ${getUsers()}
+                        ${employee.map(e => `<option value="${e.name}">${e.name}</option>`)}
                     </select>
                 </div>
                 <div class="form-group">
@@ -28,7 +28,8 @@ function renderPunchHtml(){
     document.querySelector('.container').innerHTML = html;
 
     // displaying the last punch message of the selected user when website renders
-    renderPunchMessage();
+    let selectedUser = getSelectedUser(document.getElementById('user').value);
+    renderPunchMessage(selectedUser);
 
     // event listener for the punch in button
     document.querySelector('.punchIn').addEventListener('click', (e) => {
@@ -36,7 +37,7 @@ function renderPunchHtml(){
         if(!verifyPin()){
             return;
         };
-        if(getSelectedUser().punchStatus.isPunchedIn === true){
+        if(selectedUser.punchStatus.isPunchedIn === true){
             document.querySelector('.js-pin-info').innerHTML = "Already punched in";
             console.log('already punched in');
             return
@@ -44,8 +45,8 @@ function renderPunchHtml(){
         // takes the punched in time then saves it and displays the msg
         var now = dayjs().format('HH:mm:ss');
         const punchMsg = `You punched in at ${now}`;
-        getSelectedUser().punchStatus.isPunchedIn = true;
-        getSelectedUser().punchStatus.lastPunch = punchMsg;
+        selectedUser.punchStatus.isPunchedIn = true;
+        selectedUser.punchStatus.lastPunch = punchMsg;
         saveToStorage();
         document.querySelector('.js-punch-info').innerHTML = punchMsg;
         renderPinMessage();
@@ -54,7 +55,7 @@ function renderPunchHtml(){
     // event listener for punch out button
     document.querySelector('.punchOut').addEventListener('click', (e) => {
         e.preventDefault();
-        if(getSelectedUser().punchStatus.isPunchedIn === false){
+        if(selectedUser.punchStatus.isPunchedIn === false){
             console.log("You haven't punched in yet");
             document.querySelector('.js-pin-info').innerHTML = "You haven't punched in yet";
             return
@@ -62,42 +63,29 @@ function renderPunchHtml(){
 
         var now = dayjs().format('HH:mm:ss');
         const punchMsg = `You punched out at ${now}`;
-        getSelectedUser().punchStatus.isPunchedIn = false;
-        getSelectedUser().punchStatus.lastPunch = punchMsg;
+        selectedUser.punchStatus.isPunchedIn = false;
+        selectedUser.punchStatus.lastPunch = punchMsg;
         saveToStorage();
         document.querySelector('.js-punch-info').innerHTML = punchMsg;
         renderPinMessage();
     });
 
     document.querySelector('.js-user-option').addEventListener('change', () => {
-        renderPunchMessage();
+        selectedUser = getSelectedUser(document.getElementById('user').value);
+        renderPunchMessage(selectedUser);
         renderPinMessage();
     });
 }
-// function to get the employee info that is selected in the dropdown menu
-export function getSelectedUser(){
-    const username = document.getElementById('user').value;
-    const selectedEmployee = employee.find(e => e.name === username);
-    return selectedEmployee;
-}
 
-function renderPunchMessage(){
+function renderPunchMessage(selectedUser){
     document.querySelector('.js-punch-info').innerHTML =
-    getSelectedUser().punchStatus.lastPunch === ''
+    selectedUser.punchStatus.lastPunch === ''
         ? 'Your last punch status will display here'
-        : getSelectedUser().punchStatus.lastPunch;
+        : selectedUser.punchStatus.lastPunch;
 }
 
 function renderPinMessage(){
     document.querySelector('.js-pin-info').innerHTML = 'Please enter your pin';
-}
-
-export function getUsers(){
-    let userHtml = ``;
-    employee.forEach(e => {
-        userHtml += `<option value="${e.name}">${e.name}</option>`;
-    });
-    return userHtml;
 }
 
 function verifyPin(){
@@ -106,7 +94,7 @@ function verifyPin(){
     /*if(pin === ''){
         div.innerHTML = 'The pin is empty';
         return false;
-    }else if(getSelectedUser().pin !== ''){
+    }else if(selectedUser.pin !== ''){
         div.innerHTML = 'The pin is incorrect';
         return false;
     }*/
