@@ -1,4 +1,5 @@
 import { employee, addNewEmployee } from "../data/employee-data.js";
+import './database.js';
 
 var loginInfo = JSON.parse(localStorage.getItem('login'));
 

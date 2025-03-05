@@ -24,7 +24,6 @@ export const employee = JSON.parse(localStorage.getItem('employee')) || [
 export function addNewEmployee(employeeDetails) {
     employee.push(employeeDetails);
     saveToStorage();
-    console.log('new employee registered');
 }
 
 export function saveToStorage(){
