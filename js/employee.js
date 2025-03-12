@@ -1,16 +1,10 @@
-import { employee, addNewEmployee } from "../data/employee-data.js";
-import './database.js';
+import { createAccount, loginWIthEmailAndPassword, getEmployeeData } from '../data/database.js';
 
 var loginInfo = JSON.parse(localStorage.getItem('login'));
-
-if(!loginInfo){
-    isLoggedIn = false;
-}else{
-    var isLoggedIn = loginInfo.isLoggedIn;
-}
+let isLoggedIn = loginInfo ? loginInfo.isLoggedIn : false;
 
 if (isLoggedIn){
-    const loggedInEmployee = loginInfo.employeeInfo;
+    const loggedInEmployee = loginInfo.employeeData;
     renderLoggedIn(loggedInEmployee);
 }else{
     renderLogin();
@@ -41,28 +35,18 @@ function renderLogin(){
         renderRegister();
     });
 
-    document.querySelector('.js-login').addEventListener('click', (e) => {
+    document.querySelector('.js-login').addEventListener('click', async (e) => {
         e.preventDefault();
         const email = document.getElementById('email').value;
         const password = document.getElementById('password').value;
 
-        if(login(email, password)){
-            console.log('You have logged in');
-        }else{
-            console.log("Email or password didn't match");
+        const employeeId = await loginWIthEmailAndPassword(email, password);
+        if(employeeId){
+            const employeeData = await getEmployeeData(employeeId);
+            localStorage.setItem('login', JSON.stringify({isLoggedIn: true, employeeData}));
+            renderLoggedIn(employeeData);
         }
     });
-}
-
-function login(email, password){
-    const employeeInfo = employee.find(employee => employee.email === email);
-    if (employeeInfo && employeeInfo.password === password) {
-        isLoggedIn = true;
-        renderLoggedIn(employeeInfo);
-        localStorage.setItem('login', JSON.stringify({employeeInfo, isLoggedIn}));
-        return true;
-    }
-    return false;
 }
 
 function renderRegister(){
@@ -105,20 +89,20 @@ function renderRegister(){
         const password = document.getElementById('password').value;
         const password2 = document.getElementById('password2').value;
         
-        if(register(name, email, password, password2)){
+        if(validateFields(name, email, password, password2)){
             document.querySelector('.history').innerText = "Registration successful!";
             const pin = '0000';
             const punchStatus = {
                 isPunchedIn: false,
                 lastPunch: ''
             }
-            addNewEmployee({name, email, password, pin, punchStatus});
+            createAccount(name, email, password);
             renderLogin();
         }
     });
 }
 
-function register(name, email, password, password2){
+function validateFields(name, email, password, password2){
     if(!name || !email || !password || !password2){
         document.querySelector('.history').innerText = "All the fields must be filled";
         return false;
@@ -127,16 +111,13 @@ function register(name, email, password, password2){
         document.querySelector('.history').innerText = "Password didn't match";
         return false;
     }
-    if(employee.find(employee => employee.email === email)){
-        document.querySelector('.history').innerText = "Email already registered";
-        return false;
-    }
     return true;
 }
 
-function renderLoggedIn(employee){
+async function renderLoggedIn(employee){
+    let employeeData = await employee;
     const loggedInHTML = `
-        <h2>You have logged in as ${employee.name}</h2>
+        <h2>You have logged in as ${employeeData.name}</h2>
         <form>
             <div class="form-group">
                 Turn on the cash
@@ -150,8 +131,7 @@ function renderLoggedIn(employee){
     document.querySelector('.js-current').innerHTML = loggedInHTML;
 
     document.querySelector('.js-logout').addEventListener('click', () => {
-        isLoggedIn = false;
-        localStorage.setItem('login', JSON.stringify({isLoggedIn}));
+        localStorage.setItem('login', JSON.stringify({isLoggedIn: false}));
         renderLogin();
     });
 }

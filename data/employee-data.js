@@ -1,4 +1,5 @@
-export const employee = JSON.parse(localStorage.getItem('employee')) || [
+/*
+export let employee = JSON.parse(localStorage.getItem('employee')) || [
     {
         name: 'Prabesh Aryal',
         email: 'aryalpravesh111@gmail.com',
@@ -33,3 +34,4 @@ export function saveToStorage(){
 export function getSelectedUser(username){
     return employee.find(e => e.name === username);
 }
+*/
