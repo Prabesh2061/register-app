@@ -1,7 +1,9 @@
-import { employee, getSelectedUser, saveToStorage } from "../data/employee-data.js";
+import { getEmployeeData, usersData, getUserByEmail, getUserId, updatePunchStatus } from '../data/database.js';
 import 'https://cdn.jsdelivr.net/npm/dayjs@1/dayjs.min.js';
 
-function renderPunchHtml(){
+const employee = await usersData();
+
+async function renderPunchHtml(){
     const html = `
         <div class="current">
             <h2>Punch</h2>
@@ -9,7 +11,7 @@ function renderPunchHtml(){
                 <div class="form-group">
                     <label for="user">User:</label>
                     <select name="user" id="user" class="js-user-option">
-                        ${employee.map(e => `<option value="${e.name}">${e.name}</option>`)}
+                        ${employee.map(e => `<option value="${e.email}">${e.name}</option>`)}
                     </select>
                 </div>
                 <div class="form-group">
@@ -28,7 +30,8 @@ function renderPunchHtml(){
     document.querySelector('.container').innerHTML = html;
 
     // displaying the last punch message of the selected user when website renders
-    let selectedUser = getSelectedUser(document.getElementById('user').value);
+    let selectedUser = await getUserByEmail(document.getElementById('user').value);
+    let uid = await getUserId(document.getElementById('user').value);
     renderPunchMessage(selectedUser);
 
     // event listener for the punch in button
@@ -45,13 +48,10 @@ function renderPunchHtml(){
         // takes the punched in time then saves it and displays the msg
         var now = dayjs().format('HH:mm:ss');
         const punchMsg = `You punched in at ${now}`;
-        selectedUser.punchStatus.isPunchedIn = true;
-        selectedUser.punchStatus.lastPunch = punchMsg;
-        saveToStorage();
+        updatePunchStatus({isPunchedIn: true, lastPunch: punchMsg}, uid);
         document.querySelector('.js-punch-info').innerHTML = punchMsg;
         renderPinMessage();
     });
-
     // event listener for punch out button
     document.querySelector('.punchOut').addEventListener('click', (e) => {
         e.preventDefault();
@@ -60,18 +60,16 @@ function renderPunchHtml(){
             document.querySelector('.js-pin-info').innerHTML = "You haven't punched in yet";
             return
         };
-
         var now = dayjs().format('HH:mm:ss');
         const punchMsg = `You punched out at ${now}`;
-        selectedUser.punchStatus.isPunchedIn = false;
-        selectedUser.punchStatus.lastPunch = punchMsg;
-        saveToStorage();
+        updatePunchStatus({isPunchedIn: false, lastPunch: punchMsg}, uid);
         document.querySelector('.js-punch-info').innerHTML = punchMsg;
         renderPinMessage();
     });
 
-    document.querySelector('.js-user-option').addEventListener('change', () => {
-        selectedUser = getSelectedUser(document.getElementById('user').value);
+    document.querySelector('.js-user-option').addEventListener('change', async () => {
+        selectedUser = await getUserByEmail(document.getElementById('user').value);
+        uid = await getUserId(document.getElementById('user').value);
         renderPunchMessage(selectedUser);
         renderPinMessage();
     });

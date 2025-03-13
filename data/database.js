@@ -1,7 +1,7 @@
 import {initializeApp} from 'https://www.gstatic.com/firebasejs/10.5.0/firebase-app.js';
 import {getDatabase, ref, push, onValue, remove, get} from 'https://www.gstatic.com/firebasejs/10.5.0/firebase-database.js';
 import {getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword} from 'https://www.gstatic.com/firebasejs/10.5.0/firebase-auth.js';
-import { getFirestore, setDoc, doc, getDoc } from 'https://www.gstatic.com/firebasejs/10.5.0/firebase-firestore.js';
+import { getFirestore, setDoc, doc, getDoc, collection, query, getDocs, where, updateDoc, serverTimestamp } from 'https://www.gstatic.com/firebasejs/10.5.0/firebase-firestore.js';
 
 const firebaseConfig = {
   apiKey: "AIzaSyCC80Q-fA-SPOpG1InuL0YeN0XWSnCIHeE",
@@ -18,7 +18,7 @@ const database = getDatabase(app); // Initialize realtime database
 const auth = getAuth(app);  // Initialize authentication app
 const db = getFirestore(app);  // Initialize Firestore database
 
-export function createAccount(name, email, password){
+export function createAccount(name, email, password, pin, punchStatus){
   createUserWithEmailAndPassword(auth, email, password)
   .then(async (userCredential) => {
     const user = userCredential.user;
@@ -26,8 +26,10 @@ export function createAccount(name, email, password){
     // adding the values to firestore database
     const docRef = doc(db, 'users', user.uid);
     const userData = {
-      email: user.email,
-      name: name
+      email: email,
+      name: name,
+      pin: pin,
+      punchStatus: punchStatus
     }
     await setDoc(docRef, userData);
   })
@@ -50,6 +52,37 @@ export async function getEmployeeData(uid){
   if (docSnap.exists()) {
     return docSnap.data();
   } else {
-    console.log("No such document!");
+    console.log("No such data!");
   }
+}
+
+export async function usersData(){
+  const q = query(collection(db, 'users'));
+  let array = [];
+  const querySnapshot = await getDocs(q);
+  querySnapshot.forEach(doc => {
+    array.push(doc.data());
+  });
+  return array;
+}
+
+export async function getUserByEmail(email){
+  const q = query(collection(db, 'users'), where("email", "==", email));
+  let array;
+  const querySnapshot = await getDocs(q);
+  querySnapshot.forEach(doc => {
+    array = doc.data();
+  });
+  return array;
+}
+
+export async function getUserId(email){
+  const q = query(collection(db, 'users'), where("email", "==", email));
+  const querySnapshot = await getDocs(q);
+  return querySnapshot.docs[0].id;
+}
+
+export async function updatePunchStatus(punchStatus, uid){
+  const docRef = doc(db, "users", uid);
+  await updateDoc(docRef, { punchStatus: { isPunchedIn: punchStatus.isPunchedIn, lastPunch: punchStatus.lastPunch}});
 }

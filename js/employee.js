@@ -96,7 +96,7 @@ function renderRegister(){
                 isPunchedIn: false,
                 lastPunch: ''
             }
-            createAccount(name, email, password);
+            createAccount(name, email, password, pin, punchStatus);
             renderLogin();
         }
     });
